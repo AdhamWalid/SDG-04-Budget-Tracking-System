@@ -6,8 +6,8 @@ import java.util.Map;
 
 public class PieChartPanel extends JPanel {
 
-    private static final Color PANEL_BG = new Color(31, 41, 55);
-    private static final Color TEXT_PRIMARY = new Color(248, 250, 252);
+    private static final Color PANEL_BG = new Color(16, 24, 39);
+    private static final Color TEXT_PRIMARY = new Color(245, 247, 255);
     private static final Color TEXT_MUTED = new Color(148, 163, 184);
 
     private Map<String, Double> data;
@@ -60,12 +60,12 @@ public class PieChartPanel extends JPanel {
         int i = 0;
 
         Color[] colors = {
-                new Color(52, 152, 219),
-                new Color(231, 76, 60),
-                new Color(46, 204, 113),
-                new Color(155, 89, 182),
-                new Color(241, 196, 15),
-                new Color(230, 126, 34)
+                new Color(96, 165, 250),
+                new Color(248, 113, 113),
+                new Color(52, 211, 153),
+                new Color(196, 181, 253),
+                new Color(251, 191, 36),
+                new Color(244, 114, 182)
         };
 
         for (Map.Entry<String, Double> entry : data.entrySet()) {
@@ -78,16 +78,16 @@ public class PieChartPanel extends JPanel {
             i++;
         }
 
-        g2.setColor(PANEL_BG.darker());
+        g2.setColor(new Color(9, 15, 26));
         g2.fillOval(innerX, innerY, innerDiameter, innerDiameter);
         g2.setColor(TEXT_PRIMARY);
-        g2.setFont(new Font("SansSerif", Font.BOLD, 14));
+        g2.setFont(new Font("SansSerif", Font.BOLD, 13));
         FontMetrics titleMetrics = g2.getFontMetrics();
         String totalLabel = "Total";
         int totalLabelX = innerX + (innerDiameter - titleMetrics.stringWidth(totalLabel)) / 2;
         int totalLabelY = innerY + innerDiameter / 2 - 6;
         g2.drawString(totalLabel, totalLabelX, totalLabelY);
-        g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        g2.setFont(new Font("SansSerif", Font.BOLD, 12));
         FontMetrics valueMetrics = g2.getFontMetrics();
         String totalValue = df.format(total);
         int totalValueX = innerX + (innerDiameter - valueMetrics.stringWidth(totalValue)) / 2;

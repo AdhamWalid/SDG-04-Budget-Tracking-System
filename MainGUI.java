@@ -21,19 +21,22 @@ import java.util.Map;
 
 public class MainGUI {
 
-    private static final Color APP_BG = new Color(17, 24, 39);
-    private static final Color PANEL_BG = new Color(31, 41, 55);
-    private static final Color PANEL_ALT = new Color(15, 23, 42);
-    private static final Color HEADER_BG = new Color(9, 14, 25);
-    private static final Color TEXT_PRIMARY = new Color(248, 250, 252);
+    private static final Color APP_BG = new Color(6, 11, 22);
+    private static final Color PANEL_BG = new Color(16, 24, 39);
+    private static final Color PANEL_ALT = new Color(11, 19, 33);
+    private static final Color HEADER_BG = new Color(10, 18, 34);
+    private static final Color TEXT_PRIMARY = new Color(245, 247, 255);
     private static final Color TEXT_MUTED = new Color(148, 163, 184);
-    private static final Color BORDER = new Color(51, 65, 85);
-    private static final Color SUCCESS = new Color(34, 197, 94);
-    private static final Color DANGER = new Color(239, 68, 68);
-    private static final Color WARNING = new Color(245, 158, 11);
-    private static final Color INFO = new Color(59, 130, 246);
+    private static final Color BORDER = new Color(56, 70, 94);
+    private static final Color SUCCESS = new Color(52, 211, 153);
+    private static final Color DANGER = new Color(248, 113, 113);
+    private static final Color WARNING = new Color(251, 191, 36);
+    private static final Color INFO = new Color(96, 165, 250);
     private static final Color SECONDARY = new Color(100, 116, 139);
-    private static final Color HIGHLIGHT = new Color(14, 116, 144);
+    private static final Color HIGHLIGHT = new Color(14, 165, 233);
+    private static final Color CARD_TOP = new Color(29, 41, 64);
+    private static final Color CARD_BOTTOM = new Color(14, 22, 38);
+    private static final Color SURFACE_OVERLAY = new Color(255, 255, 255, 10);
 
     private final BudgetManager manager = new BudgetManager();
     private final DefaultTableModel model;
@@ -115,8 +118,7 @@ public class MainGUI {
         sidePanel.add(createSectionPanel("Activity Log", outputScroll), BorderLayout.NORTH);
         sidePanel.add(createSectionPanel("Expense Distribution", pieChart), BorderLayout.CENTER);
 
-        JPanel content = new JPanel(new BorderLayout(16, 16));
-        content.setBackground(APP_BG);
+        JPanel content = createBackgroundCanvas();
         content.setBorder(new EmptyBorder(18, 18, 18, 18));
         content.add(northPanel, BorderLayout.NORTH);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftContent, sidePanel);
@@ -210,32 +212,46 @@ public class MainGUI {
     }
 
     private JPanel createHeroPanel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(HEADER_BG);
-        panel.setBorder(new EmptyBorder(20, 22, 20, 22));
+        GradientPanel panel = new GradientPanel(new Color(18, 36, 64), new Color(8, 16, 30), 30);
+        panel.setLayout(new BorderLayout(24, 0));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(90, 112, 150), 1, true),
+                new EmptyBorder(24, 24, 24, 24)));
+
+        JLabel eyebrow = new JLabel("FINANCE CONTROL CENTER");
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 12));
+        eyebrow.setForeground(new Color(125, 211, 252));
 
         JLabel title = new JLabel("Personal Finance Dashboard");
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
+        title.setFont(new Font("SansSerif", Font.BOLD, 30));
         title.setForeground(TEXT_PRIMARY);
 
-        JLabel subtitle = new JLabel("Track spending, review monthly trends, and keep your budget under control.");
+        JLabel subtitle = new JLabel("Track every ringgit with clearer actions, stronger insights, and a smoother daily workflow.");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        subtitle.setForeground(TEXT_MUTED);
+        subtitle.setForeground(new Color(214, 223, 238));
 
-        JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 6));
+        JPanel statsRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        statsRow.setOpaque(false);
+        statsRow.add(createTag("Live Overview", INFO));
+        statsRow.add(createTag("Receipt Import", new Color(244, 114, 182)));
+        statsRow.add(createTag("PDF Reports", new Color(167, 139, 250)));
+
+        JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 8));
         textPanel.setOpaque(false);
+        textPanel.add(eyebrow);
         textPanel.add(title);
         textPanel.add(subtitle);
+        textPanel.add(statsRow);
 
-        JLabel badge = new JLabel("Finance Tracker", SwingConstants.CENTER);
-        badge.setOpaque(true);
-        badge.setBackground(new Color(30, 41, 59));
-        badge.setForeground(new Color(125, 211, 252));
-        badge.setFont(new Font("SansSerif", Font.BOLD, 13));
-        badge.setBorder(new EmptyBorder(10, 18, 10, 18));
+        JPanel spotlight = new GradientPanel(new Color(255, 255, 255, 22), new Color(148, 163, 184, 12), 24);
+        spotlight.setLayout(new GridLayout(0, 1, 0, 8));
+        spotlight.setBorder(new EmptyBorder(18, 18, 18, 18));
+        spotlight.add(createMiniStat("Balance", balanceLabel.getText().isEmpty() ? "RM 0.00" : balanceLabel.getText()));
+        spotlight.add(createMiniStat("Best For", "Fast reviews and cleaner budgeting"));
+        spotlight.add(createMiniStat("Latest Focus", monthBalanceLabel.getText().isEmpty() ? "Monthly snapshot" : monthBalanceLabel.getText()));
 
         panel.add(textPanel, BorderLayout.CENTER);
-        panel.add(badge, BorderLayout.EAST);
+        panel.add(spotlight, BorderLayout.EAST);
         return panel;
     }
 
@@ -267,11 +283,11 @@ public class MainGUI {
     }
 
     private JPanel createWidgetCard(String title, String subtitle, JTextArea area) {
-        JPanel panel = new JPanel(new BorderLayout(0, 12));
-        panel.setBackground(PANEL_BG);
+        GradientPanel panel = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        panel.setLayout(new BorderLayout(0, 12));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
-                new EmptyBorder(14, 16, 14, 16)));
+                new EmptyBorder(16, 18, 16, 18)));
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setForeground(TEXT_PRIMARY);
@@ -303,22 +319,22 @@ public class MainGUI {
     }
 
     private JPanel createMetricCard(String title, JLabel valueLabel, Color accent) {
-        JPanel card = new JPanel(new BorderLayout(0, 10));
-        card.setBackground(PANEL_BG);
+        GradientPanel card = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        card.setLayout(new BorderLayout(0, 12));
         card.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
-                new EmptyBorder(14, 16, 14, 16)));
+                new EmptyBorder(14, 16, 16, 16)));
 
         JPanel accentBar = new JPanel();
         accentBar.setBackground(accent);
-        accentBar.setPreferredSize(new Dimension(0, 6));
+        accentBar.setPreferredSize(new Dimension(0, 5));
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setForeground(TEXT_MUTED);
         titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
         valueLabel.setForeground(TEXT_PRIMARY);
-        valueLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+        valueLabel.setFont(new Font("SansSerif", Font.BOLD, 19));
 
         JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 6));
         textPanel.setOpaque(false);
@@ -356,7 +372,7 @@ public class MainGUI {
         JPanel panel = createSectionPanel("Quick Actions", buttons);
 
         addIncome.addActionListener(e -> {
-            showIncomeDialog(frame, null, null);
+            showIncomeDialog(frame, null, null, null, null, null, "Income added");
         });
 
         addCategory.addActionListener(e -> {
@@ -377,7 +393,7 @@ public class MainGUI {
         });
 
         addExpense.addActionListener(e -> {
-            showExpenseDialog(frame, null, null, null, null, null, "Manual expense");
+            showExpenseDialog(frame, null, null, null, null, null, null, "Manual expense");
         });
 
         edit.addActionListener(e -> editSelectedTransaction(frame, table));
@@ -462,17 +478,30 @@ public class MainGUI {
     }
 
     private JPanel createSectionPanel(String title, Component content) {
-        JPanel panel = new JPanel(new BorderLayout(0, 14));
-        panel.setBackground(PANEL_BG);
+        GradientPanel panel = new GradientPanel(CARD_TOP, CARD_BOTTOM, 28);
+        panel.setLayout(new BorderLayout(0, 14));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
                 new EmptyBorder(16, 16, 16, 16)));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(TEXT_PRIMARY);
 
-        panel.add(titleLabel, BorderLayout.NORTH);
+        JLabel chip = new JLabel("Live");
+        chip.setOpaque(true);
+        chip.setBackground(new Color(255, 255, 255, 22));
+        chip.setForeground(new Color(191, 219, 254));
+        chip.setFont(new Font("SansSerif", Font.BOLD, 11));
+        chip.setBorder(new EmptyBorder(6, 10, 6, 10));
+
+        header.add(titleLabel, BorderLayout.WEST);
+        header.add(chip, BorderLayout.EAST);
+
+        panel.add(header, BorderLayout.NORTH);
         panel.add(content, BorderLayout.CENTER);
         return panel;
     }
@@ -489,8 +518,8 @@ public class MainGUI {
         component.setForeground(TEXT_PRIMARY);
         component.setFont(new Font("SansSerif", Font.PLAIN, 13));
         component.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(BORDER, 1, true),
-                new EmptyBorder(8, 10, 8, 10)));
+                new LineBorder(new Color(82, 96, 122), 1, true),
+                new EmptyBorder(10, 12, 10, 12)));
         component.setPreferredSize(new Dimension(420, 42));
     }
 
@@ -500,8 +529,8 @@ public class MainGUI {
         comboBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
         comboBox.setFocusable(false);
         comboBox.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(BORDER, 1, true),
-                new EmptyBorder(2, 6, 2, 6)));
+                new LineBorder(new Color(82, 96, 122), 1, true),
+                new EmptyBorder(2, 8, 2, 8)));
         comboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -535,11 +564,11 @@ public class MainGUI {
 
     private void styleScrollPane(JScrollPane scrollPane) {
         scrollPane.getViewport().setBackground(PANEL_BG);
-        scrollPane.setBorder(new LineBorder(BORDER, 1, true));
+        scrollPane.setBorder(new LineBorder(new Color(74, 88, 114), 1, true));
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10, Integer.MAX_VALUE));
-        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(Integer.MAX_VALUE, 10));
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(12, Integer.MAX_VALUE));
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(Integer.MAX_VALUE, 12));
         scrollPane.getVerticalScrollBar().setUI(createScrollBarUI());
         scrollPane.getHorizontalScrollBar().setUI(createScrollBarUI());
     }
@@ -757,9 +786,9 @@ public class MainGUI {
 
         Transaction transaction = manager.getTransactions().get(index);
         if (transaction instanceof Income) {
-            showIncomeDialog(frame, index, (Income) transaction);
+            showIncomeDialog(frame, index, (Income) transaction, null, null, null, "Income updated");
         } else if (transaction instanceof Expense) {
-            showExpenseDialog(frame, index, (Expense) transaction, null, null, null, "Edited transaction");
+            showExpenseDialog(frame, index, (Expense) transaction, null, null, null, null, "Edited transaction");
         }
     }
 
@@ -854,7 +883,7 @@ public class MainGUI {
         return new BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
-                this.thumbColor = new Color(71, 85, 105);
+                this.thumbColor = new Color(125, 211, 252, 190);
                 this.trackColor = PANEL_ALT;
             }
 
@@ -871,7 +900,7 @@ public class MainGUI {
             @Override
             protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(PANEL_ALT);
+                g2.setColor(new Color(9, 15, 26));
                 g2.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 10, 10);
                 g2.dispose();
             }
@@ -884,7 +913,7 @@ public class MainGUI {
 
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(100, 116, 139));
+                g2.setColor(new Color(125, 211, 252, 190));
                 g2.fillRoundRect(thumbBounds.x + 2, thumbBounds.y + 2,
                         Math.max(thumbBounds.width - 4, 6),
                         Math.max(thumbBounds.height - 4, 6), 10, 10);
@@ -907,19 +936,27 @@ public class MainGUI {
         btn.setForeground(TEXT_PRIMARY);
         btn.setOpaque(true);
         btn.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(color.darker(), 1, true),
-                new EmptyBorder(10, 16, 10, 16)));
+                new LineBorder(color.brighter(), 1, true),
+                new EmptyBorder(11, 18, 11, 18)));
         btn.setContentAreaFilled(true);
         btn.setFocusPainted(false);
         btn.setFont(new Font("SansSerif", Font.BOLD, 13));
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btn.putClientProperty("JButton.buttonType", "roundRect");
         return btn;
     }
 
-    private void showIncomeDialog(JFrame frame, Integer index, Income existingIncome) {
-        JTextField amountField = new JTextField(existingIncome == null ? "" : String.valueOf(existingIncome.getAmount()));
-        JTextField sourceField = new JTextField(existingIncome == null ? "" : existingIncome.getSource());
-        JTextField dateField = new JTextField((existingIncome == null ? LocalDate.now() : existingIncome.getDate()).toString());
+    private void showIncomeDialog(JFrame frame, Integer index, Income existingIncome, Double suggestedAmount,
+            String suggestedSource, LocalDate suggestedDate, String logPrefix) {
+        JTextField amountField = new JTextField(existingIncome != null
+                ? String.valueOf(existingIncome.getAmount())
+                : suggestedAmount == null ? "" : String.valueOf(suggestedAmount));
+        JTextField sourceField = new JTextField(existingIncome != null
+                ? existingIncome.getSource()
+                : suggestedSource == null ? "" : suggestedSource);
+        JTextField dateField = new JTextField((existingIncome != null
+                ? existingIncome.getDate()
+                : suggestedDate == null ? LocalDate.now() : suggestedDate).toString());
         styleInput(amountField);
         styleInput(sourceField);
         styleInput(dateField);
@@ -954,10 +991,10 @@ public class MainGUI {
             LocalDate date = LocalDate.parse(dateField.getText().trim());
             if (index == null) {
                 manager.addIncome(amount, source, date);
-                log("Income added: " + df.format(amount) + " | " + source);
+                log(logPrefix + ": " + df.format(amount) + " | " + source);
             } else {
                 manager.updateTransaction(index, "Income", amount, "", source, date);
-                log("Income updated: " + source);
+                log(logPrefix + ": " + source);
             }
             refreshAll();
         } catch (NumberFormatException ex) {
@@ -968,7 +1005,7 @@ public class MainGUI {
     }
 
     private void showExpenseDialog(JFrame frame, Integer index, Expense existingExpense, Double suggestedAmount,
-            String suggestedCategory, LocalDate suggestedDate, String logPrefix) {
+            String suggestedCategory, LocalDate suggestedDate, String suggestedSource, String logPrefix) {
         JTextField amountField = new JTextField(existingExpense != null
                 ? String.valueOf(existingExpense.getAmount())
                 : suggestedAmount == null ? "" : String.valueOf(suggestedAmount));
@@ -983,7 +1020,9 @@ public class MainGUI {
         if (!sources.contains("Unassigned")) {
             sources.add("Unassigned");
         }
-        String selectedSource = existingExpense == null ? sources.get(0) : existingExpense.getSource();
+        String selectedSource = existingExpense == null
+                ? suggestedSource == null ? sources.get(0) : suggestedSource
+                : existingExpense.getSource();
         if (!sources.contains(selectedSource)) {
             sources.add(0, selectedSource);
         }
@@ -1078,11 +1117,20 @@ public class MainGUI {
         if (!"Unknown merchant".equals(parsed.getMerchant())) {
             logPrefix += " from " + parsed.getMerchant();
         }
-        showExpenseDialog(frame, null, null,
-                parsed.getAmount() > 0 ? parsed.getAmount() : null,
-                parsed.getCategory(),
-                parsed.getDate(),
-                logPrefix);
+        if ("Income".equalsIgnoreCase(parsed.getTransactionType())) {
+            showIncomeDialog(frame, null, null,
+                    parsed.getAmount() > 0 ? parsed.getAmount() : null,
+                    parsed.getSource(),
+                    parsed.getDate(),
+                    logPrefix);
+        } else {
+            showExpenseDialog(frame, null, null,
+                    parsed.getAmount() > 0 ? parsed.getAmount() : null,
+                    parsed.getCategory(),
+                    parsed.getDate(),
+                    parsed.getSource(),
+                    logPrefix);
+        }
     }
 
     private String showReceiptTextDialog(JFrame owner) {
@@ -1104,11 +1152,11 @@ public class MainGUI {
         JScrollPane scrollPane = new JScrollPane(receiptArea);
         styleScrollPane(scrollPane);
 
-        JLabel helper = new JLabel("Paste receipt text or load a text file. Image OCR is not built into this version yet.");
+        JLabel helper = new JLabel("Paste receipt text or load a text/PDF file. Scanned image PDFs still need OCR.");
         helper.setForeground(TEXT_MUTED);
         helper.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
-        JButton loadFile = styledButton("Load Text File", WARNING);
+        JButton loadFile = styledButton("Load File", WARNING);
         loadFile.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
             chooser.setDialogTitle("Select Receipt File");
@@ -1125,10 +1173,23 @@ public class MainGUI {
                 } catch (IOException ex) {
                     showMessageDialog(owner, "Failed to read file:\n" + ex.getMessage(), "File Error");
                 }
+            } else if (fileName.endsWith(".pdf")) {
+                try {
+                    String extractedText = PdfTextExtractor.extractText(selectedFile.toPath());
+                    if (extractedText == null || extractedText.trim().isEmpty()) {
+                        showMessageDialog(owner,
+                                "This PDF does not appear to contain selectable text.\nIf it is a scanned receipt image, OCR would be needed to read it.",
+                                "No Readable PDF Text");
+                    } else {
+                        receiptArea.setText(extractedText);
+                    }
+                } catch (IOException ex) {
+                    showMessageDialog(owner, "Failed to read PDF:\n" + ex.getMessage(), "PDF Read Error");
+                }
             } else {
                 showMessageDialog(owner,
-                        "This version can import receipt text files or pasted text.\nFor image or PDF OCR, we would need to add an OCR library or API next.",
-                        "OCR Not Available Yet");
+                        "Supported file types are text files and text-based PDFs.\nScanned image receipts still need OCR support.",
+                        "Unsupported File");
             }
         });
 
@@ -1230,6 +1291,10 @@ public class MainGUI {
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
 
+        JLabel eyebrow = new JLabel("NOTICE");
+        eyebrow.setForeground(new Color(125, 211, 252));
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 11));
+
         JTextArea messageArea = new JTextArea(message);
         messageArea.setEditable(false);
         messageArea.setLineWrap(true);
@@ -1241,10 +1306,14 @@ public class MainGUI {
         JButton close = styledButton("Close", INFO);
         close.addActionListener(e -> dialog.dispose());
 
-        JPanel body = new JPanel(new BorderLayout(0, 14));
-        body.setBackground(PANEL_BG);
+        GradientPanel body = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        body.setLayout(new BorderLayout(0, 14));
         body.setBorder(new EmptyBorder(18, 18, 18, 18));
-        body.add(titleLabel, BorderLayout.NORTH);
+        JPanel header = new JPanel(new GridLayout(0, 1, 0, 6));
+        header.setOpaque(false);
+        header.add(eyebrow);
+        header.add(titleLabel);
+        body.add(header, BorderLayout.NORTH);
         body.add(messageArea, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -1264,6 +1333,10 @@ public class MainGUI {
         JLabel titleLabel = new JLabel(title);
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
+
+        JLabel eyebrow = new JLabel("QUICK ENTRY");
+        eyebrow.setForeground(new Color(125, 211, 252));
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 11));
 
         JLabel fieldLabel = createFieldLabel(label);
         JTextField field = new JTextField(initialValue);
@@ -1288,10 +1361,14 @@ public class MainGUI {
         actions.add(cancel);
         actions.add(save);
 
-        JPanel body = new JPanel(new BorderLayout(0, 16));
-        body.setBackground(PANEL_BG);
+        GradientPanel body = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        body.setLayout(new BorderLayout(0, 16));
         body.setBorder(new EmptyBorder(18, 18, 18, 18));
-        body.add(titleLabel, BorderLayout.NORTH);
+        JPanel header = new JPanel(new GridLayout(0, 1, 0, 6));
+        header.setOpaque(false);
+        header.add(eyebrow);
+        header.add(titleLabel);
+        body.add(header, BorderLayout.NORTH);
         body.add(form, BorderLayout.CENTER);
         body.add(actions, BorderLayout.SOUTH);
 
@@ -1310,6 +1387,10 @@ public class MainGUI {
         titleLabel.setForeground(TEXT_PRIMARY);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
 
+        JLabel eyebrow = new JLabel("FORM REVIEW");
+        eyebrow.setForeground(new Color(125, 211, 252));
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 11));
+
         JButton cancel = styledButton("Cancel", SECONDARY);
         JButton save = styledButton("Save", INFO);
 
@@ -1324,10 +1405,14 @@ public class MainGUI {
         actions.add(cancel);
         actions.add(save);
 
-        JPanel body = new JPanel(new BorderLayout(0, 16));
-        body.setBackground(PANEL_BG);
+        GradientPanel body = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        body.setLayout(new BorderLayout(0, 16));
         body.setBorder(new EmptyBorder(18, 18, 18, 18));
-        body.add(titleLabel, BorderLayout.NORTH);
+        JPanel header = new JPanel(new GridLayout(0, 1, 0, 6));
+        header.setOpaque(false);
+        header.add(eyebrow);
+        header.add(titleLabel);
+        body.add(header, BorderLayout.NORTH);
         body.add(contentPanel, BorderLayout.CENTER);
         body.add(actions, BorderLayout.SOUTH);
 
@@ -1343,7 +1428,7 @@ public class MainGUI {
 
     private JDialog createBaseDialog(JFrame owner, String title, boolean modal) {
         JDialog dialog = new JDialog(owner, title, modal);
-        dialog.getContentPane().setBackground(PANEL_BG);
+        dialog.getContentPane().setBackground(APP_BG);
         dialog.setLayout(new BorderLayout());
         dialog.setUndecorated(false);
         dialog.setResizable(true);
@@ -1362,5 +1447,72 @@ public class MainGUI {
     private void log(String msg) {
         output.append(msg + "\n");
         output.setCaretPosition(output.getDocument().getLength());
+    }
+
+    private JPanel createBackgroundCanvas() {
+        GradientPanel panel = new GradientPanel(new Color(7, 12, 23), new Color(4, 9, 18), 0);
+        panel.setLayout(new BorderLayout(16, 16));
+        return panel;
+    }
+
+    private JLabel createTag(String text, Color color) {
+        JLabel tag = new JLabel(text);
+        tag.setOpaque(true);
+        tag.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 36));
+        tag.setForeground(TEXT_PRIMARY);
+        tag.setBorder(new EmptyBorder(8, 12, 8, 12));
+        tag.setFont(new Font("SansSerif", Font.BOLD, 12));
+        return tag;
+    }
+
+    private JPanel createMiniStat(String label, String value) {
+        JPanel panel = new JPanel(new GridLayout(0, 1, 0, 3));
+        panel.setOpaque(false);
+
+        JLabel labelView = new JLabel(label);
+        labelView.setForeground(new Color(191, 219, 254));
+        labelView.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        JLabel valueView = new JLabel(value);
+        valueView.setForeground(TEXT_PRIMARY);
+        valueView.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        panel.add(labelView);
+        panel.add(valueView);
+        return panel;
+    }
+
+    private static class GradientPanel extends JPanel {
+        private final Color topColor;
+        private final Color bottomColor;
+        private final int arc;
+
+        private GradientPanel(Color topColor, Color bottomColor, int arc) {
+            this.topColor = topColor;
+            this.bottomColor = bottomColor;
+            this.arc = arc;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            GradientPaint paint = new GradientPaint(0, 0, topColor, 0, getHeight(), bottomColor);
+            g2.setPaint(paint);
+            if (arc > 0) {
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.setColor(new Color(255, 255, 255, 10));
+                g2.fillRoundRect(1, 1, getWidth() - 2, Math.max(getHeight() / 3, 24), arc, arc);
+            } else {
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+            g2.setColor(new Color(255, 255, 255, 8));
+            g2.fillOval(getWidth() - 120, -20, 140, 140);
+            g2.setColor(new Color(59, 130, 246, 18));
+            g2.fillOval(-40, getHeight() - 100, 160, 160);
+            g2.dispose();
+            super.paintComponent(g);
+        }
     }
 }

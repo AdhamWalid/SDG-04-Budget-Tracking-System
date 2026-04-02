@@ -12,48 +12,57 @@ public class SplashScreen extends JWindow {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                GradientPaint gradient = new GradientPaint(0, 0, new Color(8, 15, 34), getWidth(), getHeight(),
-                        new Color(20, 47, 89));
+                GradientPaint gradient = new GradientPaint(0, 0, new Color(6, 14, 28), getWidth(), getHeight(),
+                        new Color(20, 46, 84));
                 g2.setPaint(gradient);
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 28, 28);
 
-                g2.setColor(new Color(59, 130, 246, 80));
-                g2.fillOval(getWidth() - 170, -35, 190, 190);
-                g2.setColor(new Color(34, 197, 94, 70));
+                g2.setColor(new Color(96, 165, 250, 90));
+                g2.fillOval(getWidth() - 190, -40, 210, 210);
+                g2.setColor(new Color(244, 114, 182, 55));
+                g2.fillOval(getWidth() - 310, 90, 180, 180);
+                g2.setColor(new Color(52, 211, 153, 70));
                 g2.fillOval(-55, getHeight() - 140, 190, 190);
+                g2.setColor(new Color(255, 255, 255, 10));
+                g2.fillRoundRect(28, 28, getWidth() - 56, getHeight() - 56, 26, 26);
                 g2.setColor(new Color(255, 255, 255, 28));
                 g2.drawRoundRect(12, 12, getWidth() - 24, getHeight() - 24, 24, 24);
                 g2.dispose();
             }
         };
         panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(28, 34, 28, 34));
+        panel.setBorder(new EmptyBorder(30, 36, 30, 36));
 
-        JPanel content = new JPanel(new BorderLayout(0, 18));
+        JPanel content = new JPanel(new BorderLayout(0, 22));
         content.setOpaque(false);
 
         JLabel icon = new JLabel("RM", SwingConstants.CENTER);
         icon.setOpaque(true);
-        icon.setPreferredSize(new Dimension(78, 78));
-        icon.setBackground(new Color(255, 255, 255, 30));
-        icon.setForeground(new Color(191, 219, 254));
-        icon.setFont(new Font("SansSerif", Font.BOLD, 26));
-        icon.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 55), 1, true));
+        icon.setPreferredSize(new Dimension(88, 88));
+        icon.setBackground(new Color(255, 255, 255, 26));
+        icon.setForeground(new Color(224, 231, 255));
+        icon.setFont(new Font("SansSerif", Font.BOLD, 28));
+        icon.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 65), 1, true));
+
+        JLabel eyebrow = new JLabel("PREPARING YOUR WORKSPACE");
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 12));
+        eyebrow.setForeground(new Color(125, 211, 252));
 
         JLabel title = new JLabel("Personal Finance Simulator");
-        title.setFont(new Font("SansSerif", Font.BOLD, 30));
+        title.setFont(new Font("SansSerif", Font.BOLD, 32));
         title.setForeground(new Color(248, 250, 252));
 
-        JLabel subtitle = new JLabel("Loading your budgets, analytics, and latest transactions.");
+        JLabel subtitle = new JLabel("Loading your budgets, analytics, receipts, and dashboard widgets.");
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
         subtitle.setForeground(new Color(191, 219, 254));
 
-        JLabel footer = new JLabel("Building your dashboard experience");
+        JLabel footer = new JLabel("Building a smoother finance experience");
         footer.setFont(new Font("SansSerif", Font.PLAIN, 12));
         footer.setForeground(new Color(148, 163, 184));
 
         JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 6));
         textPanel.setOpaque(false);
+        textPanel.add(eyebrow);
         textPanel.add(title);
         textPanel.add(subtitle);
         textPanel.add(footer);
@@ -66,25 +75,30 @@ public class SplashScreen extends JWindow {
         JProgressBar bar = new JProgressBar();
         bar.setIndeterminate(true);
         bar.setBorderPainted(false);
-        bar.setPreferredSize(new Dimension(0, 12));
-        bar.setBackground(new Color(30, 41, 59));
-        bar.setForeground(new Color(96, 165, 250));
+        bar.setPreferredSize(new Dimension(0, 14));
+        bar.setBackground(new Color(14, 24, 42));
+        bar.setForeground(new Color(125, 211, 252));
 
         JPanel badges = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         badges.setOpaque(false);
         badges.add(createBadge("Analytics"));
-        badges.add(createBadge("Categories"));
+        badges.add(createBadge("Receipt Import"));
+        badges.add(createBadge("Source Tracking"));
         badges.add(createBadge("Reports"));
 
+        JPanel lower = new JPanel(new BorderLayout(0, 14));
+        lower.setOpaque(false);
+        lower.add(badges, BorderLayout.NORTH);
+        lower.add(bar, BorderLayout.SOUTH);
+
         content.add(header, BorderLayout.NORTH);
-        content.add(badges, BorderLayout.CENTER);
-        content.add(bar, BorderLayout.SOUTH);
+        content.add(lower, BorderLayout.SOUTH);
 
         panel.add(content, BorderLayout.CENTER);
 
         add(panel);
         setBackground(new Color(0, 0, 0, 0));
-        setSize(620, 260);
+        setSize(700, 300);
         setLocationRelativeTo(null);
         setVisible(true);
 
@@ -100,9 +114,9 @@ public class SplashScreen extends JWindow {
     private JLabel createBadge(String text) {
         JLabel badge = new JLabel(text);
         badge.setOpaque(true);
-        badge.setBackground(new Color(255, 255, 255, 24));
+        badge.setBackground(new Color(255, 255, 255, 20));
         badge.setForeground(new Color(224, 231, 255));
-        badge.setBorder(new EmptyBorder(8, 12, 8, 12));
+        badge.setBorder(new EmptyBorder(9, 14, 9, 14));
         badge.setFont(new Font("SansSerif", Font.BOLD, 12));
         return badge;
     }

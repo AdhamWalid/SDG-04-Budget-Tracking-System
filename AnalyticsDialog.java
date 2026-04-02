@@ -12,16 +12,18 @@ import java.util.Map;
 
 public class AnalyticsDialog extends JDialog {
 
-    private static final Color APP_BG = new Color(17, 24, 39);
-    private static final Color PANEL_BG = new Color(31, 41, 55);
-    private static final Color PANEL_ALT = new Color(15, 23, 42);
-    private static final Color TEXT_PRIMARY = new Color(248, 250, 252);
+    private static final Color APP_BG = new Color(6, 11, 22);
+    private static final Color PANEL_BG = new Color(16, 24, 39);
+    private static final Color PANEL_ALT = new Color(11, 19, 33);
+    private static final Color TEXT_PRIMARY = new Color(245, 247, 255);
     private static final Color TEXT_MUTED = new Color(148, 163, 184);
-    private static final Color BORDER = new Color(51, 65, 85);
-    private static final Color SUCCESS = new Color(34, 197, 94);
-    private static final Color DANGER = new Color(239, 68, 68);
-    private static final Color INFO = new Color(59, 130, 246);
-    private static final Color WARNING = new Color(245, 158, 11);
+    private static final Color BORDER = new Color(56, 70, 94);
+    private static final Color SUCCESS = new Color(52, 211, 153);
+    private static final Color DANGER = new Color(248, 113, 113);
+    private static final Color INFO = new Color(96, 165, 250);
+    private static final Color WARNING = new Color(251, 191, 36);
+    private static final Color CARD_TOP = new Color(29, 41, 64);
+    private static final Color CARD_BOTTOM = new Color(14, 22, 38);
 
     private final DecimalFormat df = new DecimalFormat("RM 0.00");
 
@@ -33,8 +35,8 @@ public class AnalyticsDialog extends JDialog {
         YearMonth latestMonth = manager.getLatestTransactionMonth();
         Expense highestExpense = manager.getHighestExpense();
 
-        JPanel content = new JPanel(new BorderLayout(16, 16));
-        content.setBackground(APP_BG);
+        GradientPanel content = new GradientPanel(new Color(7, 12, 23), new Color(4, 9, 18), 0);
+        content.setLayout(new BorderLayout(16, 16));
         content.setBorder(new EmptyBorder(18, 18, 18, 18));
 
         content.add(createHeroPanel(latestMonth), BorderLayout.NORTH);
@@ -56,31 +58,43 @@ public class AnalyticsDialog extends JDialog {
     }
 
     private JPanel createHeroPanel(YearMonth latestMonth) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(PANEL_ALT);
+        GradientPanel panel = new GradientPanel(new Color(18, 36, 64), new Color(8, 16, 30), 30);
+        panel.setLayout(new BorderLayout(24, 0));
         panel.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(BORDER, 1, true),
-                new EmptyBorder(18, 20, 18, 20)));
+                new LineBorder(new Color(90, 112, 150), 1, true),
+                new EmptyBorder(22, 22, 22, 22)));
+
+        JLabel eyebrow = new JLabel("ANALYTICS OVERVIEW");
+        eyebrow.setForeground(new Color(125, 211, 252));
+        eyebrow.setFont(new Font("SansSerif", Font.BOLD, 12));
 
         JLabel title = new JLabel("Analytics Dashboard");
         title.setForeground(TEXT_PRIMARY);
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
 
         JLabel subtitle = new JLabel("Review performance, spending pressure, and " + latestMonth + " activity at a glance.");
-        subtitle.setForeground(TEXT_MUTED);
+        subtitle.setForeground(new Color(214, 223, 238));
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 14));
 
-        JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 6));
+        JPanel chips = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        chips.setOpaque(false);
+        chips.add(createTag("Monthly Snapshot", INFO));
+        chips.add(createTag("Budget Pressure", WARNING));
+        chips.add(createTag("Category Health", SUCCESS));
+
+        JPanel textPanel = new JPanel(new GridLayout(0, 1, 0, 8));
         textPanel.setOpaque(false);
+        textPanel.add(eyebrow);
         textPanel.add(title);
         textPanel.add(subtitle);
+        textPanel.add(chips);
 
-        JLabel badge = new JLabel("Insights", SwingConstants.CENTER);
-        badge.setOpaque(true);
-        badge.setBackground(new Color(30, 41, 59));
-        badge.setForeground(new Color(125, 211, 252));
-        badge.setFont(new Font("SansSerif", Font.BOLD, 13));
-        badge.setBorder(new EmptyBorder(10, 18, 10, 18));
+        JPanel badge = new GradientPanel(new Color(255, 255, 255, 22), new Color(148, 163, 184, 12), 24);
+        badge.setLayout(new GridLayout(0, 1, 0, 8));
+        badge.setBorder(new EmptyBorder(18, 18, 18, 18));
+        badge.add(createMiniStat("Viewing", latestMonth.toString()));
+        badge.add(createMiniStat("Mode", "Actionable insights"));
+        badge.add(createMiniStat("Focus", "Budget and category momentum"));
 
         panel.add(textPanel, BorderLayout.CENTER);
         panel.add(badge, BorderLayout.EAST);
@@ -105,8 +119,8 @@ public class AnalyticsDialog extends JDialog {
     }
 
     private JPanel createMetricCard(String title, String value, Color accent) {
-        JPanel card = new JPanel(new BorderLayout(0, 10));
-        card.setBackground(PANEL_BG);
+        GradientPanel card = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        card.setLayout(new BorderLayout(0, 12));
         card.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
                 new EmptyBorder(14, 16, 14, 16)));
@@ -175,8 +189,8 @@ public class AnalyticsDialog extends JDialog {
     }
 
     private JPanel createCategoryRow(Category category) {
-        JPanel row = new JPanel(new BorderLayout(0, 8));
-        row.setBackground(PANEL_ALT);
+        GradientPanel row = new GradientPanel(new Color(19, 29, 47), new Color(11, 19, 33), 22);
+        row.setLayout(new BorderLayout(0, 8));
         row.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
                 new EmptyBorder(12, 12, 12, 12)));
@@ -257,17 +271,30 @@ public class AnalyticsDialog extends JDialog {
     }
 
     private JPanel createSectionPanel(String title, Component content) {
-        JPanel panel = new JPanel(new BorderLayout(0, 14));
-        panel.setBackground(PANEL_BG);
+        GradientPanel panel = new GradientPanel(CARD_TOP, CARD_BOTTOM, 28);
+        panel.setLayout(new BorderLayout(0, 14));
         panel.setBorder(BorderFactory.createCompoundBorder(
                 new LineBorder(BORDER, 1, true),
                 new EmptyBorder(16, 16, 16, 16)));
+
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
         titleLabel.setForeground(TEXT_PRIMARY);
 
-        panel.add(titleLabel, BorderLayout.NORTH);
+        JLabel status = new JLabel("Active");
+        status.setOpaque(true);
+        status.setBackground(new Color(255, 255, 255, 20));
+        status.setForeground(new Color(191, 219, 254));
+        status.setBorder(new EmptyBorder(6, 10, 6, 10));
+        status.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        header.add(titleLabel, BorderLayout.WEST);
+        header.add(status, BorderLayout.EAST);
+
+        panel.add(header, BorderLayout.NORTH);
         panel.add(content, BorderLayout.CENTER);
         return panel;
     }
@@ -300,12 +327,12 @@ public class AnalyticsDialog extends JDialog {
     }
 
     private void styleScrollPane(JScrollPane scrollPane, Color viewportColor) {
-        scrollPane.setBorder(new LineBorder(BORDER, 1, true));
+        scrollPane.setBorder(new LineBorder(new Color(74, 88, 114), 1, true));
         scrollPane.getViewport().setBackground(viewportColor);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(16);
-        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(10, Integer.MAX_VALUE));
-        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(Integer.MAX_VALUE, 10));
+        scrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(12, Integer.MAX_VALUE));
+        scrollPane.getHorizontalScrollBar().setPreferredSize(new Dimension(Integer.MAX_VALUE, 12));
         scrollPane.getVerticalScrollBar().setUI(createScrollBarUI());
         scrollPane.getHorizontalScrollBar().setUI(createScrollBarUI());
     }
@@ -314,7 +341,7 @@ public class AnalyticsDialog extends JDialog {
         return new BasicScrollBarUI() {
             @Override
             protected void configureScrollBarColors() {
-                thumbColor = new Color(71, 85, 105);
+                thumbColor = new Color(125, 211, 252, 190);
                 trackColor = PANEL_ALT;
             }
 
@@ -331,7 +358,7 @@ public class AnalyticsDialog extends JDialog {
             @Override
             protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(PANEL_ALT);
+                g2.setColor(new Color(9, 15, 26));
                 g2.fillRoundRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height, 10, 10);
                 g2.dispose();
             }
@@ -344,7 +371,7 @@ public class AnalyticsDialog extends JDialog {
 
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(100, 116, 139));
+                g2.setColor(new Color(125, 211, 252, 190));
                 g2.fillRoundRect(thumbBounds.x + 2, thumbBounds.y + 2,
                         Math.max(thumbBounds.width - 4, 6),
                         Math.max(thumbBounds.height - 4, 6), 10, 10);
@@ -359,5 +386,63 @@ public class AnalyticsDialog extends JDialog {
                 return button;
             }
         };
+    }
+
+    private JLabel createTag(String text, Color color) {
+        JLabel tag = new JLabel(text);
+        tag.setOpaque(true);
+        tag.setBackground(new Color(color.getRed(), color.getGreen(), color.getBlue(), 36));
+        tag.setForeground(TEXT_PRIMARY);
+        tag.setBorder(new EmptyBorder(8, 12, 8, 12));
+        tag.setFont(new Font("SansSerif", Font.BOLD, 12));
+        return tag;
+    }
+
+    private JPanel createMiniStat(String label, String value) {
+        JPanel panel = new JPanel(new GridLayout(0, 1, 0, 3));
+        panel.setOpaque(false);
+
+        JLabel labelView = new JLabel(label);
+        labelView.setForeground(new Color(191, 219, 254));
+        labelView.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        JLabel valueView = new JLabel(value);
+        valueView.setForeground(TEXT_PRIMARY);
+        valueView.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        panel.add(labelView);
+        panel.add(valueView);
+        return panel;
+    }
+
+    private static class GradientPanel extends JPanel {
+        private final Color topColor;
+        private final Color bottomColor;
+        private final int arc;
+
+        private GradientPanel(Color topColor, Color bottomColor, int arc) {
+            this.topColor = topColor;
+            this.bottomColor = bottomColor;
+            this.arc = arc;
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setPaint(new GradientPaint(0, 0, topColor, 0, getHeight(), bottomColor));
+            if (arc > 0) {
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), arc, arc);
+                g2.setColor(new Color(255, 255, 255, 10));
+                g2.fillRoundRect(1, 1, getWidth() - 2, Math.max(getHeight() / 3, 24), arc, arc);
+            } else {
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
+            g2.setColor(new Color(255, 255, 255, 8));
+            g2.fillOval(getWidth() - 110, -18, 128, 128);
+            g2.dispose();
+            super.paintComponent(g);
+        }
     }
 }
