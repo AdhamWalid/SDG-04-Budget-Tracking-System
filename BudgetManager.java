@@ -1,5 +1,4 @@
 import java.util.*;
-
 public class BudgetManager {
 
     private ArrayList<Transaction> transactions = new ArrayList<>();
@@ -65,4 +64,43 @@ public class BudgetManager {
 
         return highest;
     }
+
+    public void removeTransaction(int index) {
+    transactions.remove(index);
+}
+
+public double getTotalIncome() {
+    double total = 0;
+    for (Transaction t : transactions) {
+        if (t instanceof Income) {
+            total += t.getAmount();
+        }
+    }
+    return total;
+}
+
+public double getTotalExpense() {
+    double total = 0;
+    for (Transaction t : transactions) {
+        if (t instanceof Expense) {
+            total += t.getAmount();
+        }
+    }
+    return total;
+}
+
+public Map<String, Double> getExpenseByCategory() {
+    Map<String, Double> map = new HashMap<>();
+
+    for (Transaction t : transactions) {
+        if (t instanceof Expense) {
+            Expense e = (Expense) t;
+            map.put(e.getCategory(),
+                    map.getOrDefault(e.getCategory(), 0.0) + e.getAmount());
+        }
+    }
+
+    return map;
+}
+
 }
