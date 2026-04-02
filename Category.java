@@ -14,6 +14,10 @@ public class Category {
         spent += amount;
     }
 
+    public void setSpent(double spent) {
+        this.spent = spent;
+    }
+
     public boolean isOverLimit() {
         return spent > limit;
     }
@@ -28,5 +32,9 @@ public class Category {
 
     public double getLimit() {
         return limit;
+    }
+
+    public void setLimit(double limit) {
+        this.limit = limit;
     }
 }
