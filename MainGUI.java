@@ -53,6 +53,9 @@ public class MainGUI {
     private final JTextArea recentActivityWidget = new JTextArea();
     private final JTextArea alertsWidget = new JTextArea();
     private final JTextArea budgetHealthWidget = new JTextArea();
+    private final JLabel savingsGoalLabel = new JLabel();
+    private final JLabel savingsGoalMetaLabel = new JLabel();
+    private final JProgressBar savingsGoalBar = new JProgressBar(0, 100);
 
     private final JComboBox<String> typeFilter = new JComboBox<>(new String[] { "All", "Income", "Expense" });
     private final JTextField categoryFilter = new JTextField(10);
@@ -273,12 +276,14 @@ public class MainGUI {
         configureWidgetArea(recentActivityWidget);
         configureWidgetArea(alertsWidget);
         configureWidgetArea(budgetHealthWidget);
+        configureSavingsGoalComponents();
 
-        JPanel grid = new JPanel(new GridLayout(1, 3, 14, 14));
+        JPanel grid = new JPanel(new GridLayout(2, 2, 14, 14));
         grid.setOpaque(false);
         grid.add(createWidgetCard("Recent Activity", "Latest transactions at a glance", recentActivityWidget));
         grid.add(createWidgetCard("Alerts", "Warnings and notable budget signals", alertsWidget));
         grid.add(createWidgetCard("Budget Health", "Snapshot of your spending position", budgetHealthWidget));
+        grid.add(createSavingsGoalCard());
         return grid;
     }
 
@@ -318,6 +323,59 @@ public class MainGUI {
         area.setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
+    private JPanel createSavingsGoalCard() {
+        GradientPanel panel = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
+        panel.setLayout(new BorderLayout(0, 14));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(BORDER, 1, true),
+                new EmptyBorder(16, 18, 16, 18)));
+
+        JLabel titleLabel = new JLabel("Savings Goal");
+        titleLabel.setForeground(TEXT_PRIMARY);
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
+
+        JLabel subtitleLabel = new JLabel("Track progress toward your current target");
+        subtitleLabel.setForeground(TEXT_MUTED);
+        subtitleLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+
+        JPanel header = new JPanel(new GridLayout(0, 1, 0, 4));
+        header.setOpaque(false);
+        header.add(titleLabel);
+        header.add(subtitleLabel);
+
+        JButton setGoalButton = styledButton("Set Goal", new Color(20, 184, 166));
+        setGoalButton.addActionListener(e -> setSavingsGoal());
+
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
+        topRow.add(header, BorderLayout.CENTER);
+        topRow.add(setGoalButton, BorderLayout.EAST);
+
+        JPanel body = new JPanel(new GridLayout(0, 1, 0, 10));
+        body.setOpaque(false);
+        body.add(savingsGoalLabel);
+        body.add(savingsGoalBar);
+        body.add(savingsGoalMetaLabel);
+
+        panel.add(topRow, BorderLayout.NORTH);
+        panel.add(body, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private void configureSavingsGoalComponents() {
+        savingsGoalLabel.setForeground(TEXT_PRIMARY);
+        savingsGoalLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+
+        savingsGoalMetaLabel.setForeground(TEXT_MUTED);
+        savingsGoalMetaLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        savingsGoalBar.setBorderPainted(false);
+        savingsGoalBar.setBackground(new Color(10, 18, 32));
+        savingsGoalBar.setForeground(new Color(52, 211, 153));
+        savingsGoalBar.setStringPainted(true);
+        savingsGoalBar.setFont(new Font("SansSerif", Font.BOLD, 11));
+    }
+
     private JPanel createMetricCard(String title, JLabel valueLabel, Color accent) {
         GradientPanel card = new GradientPanel(CARD_TOP, CARD_BOTTOM, 26);
         card.setLayout(new BorderLayout(0, 12));
@@ -353,6 +411,7 @@ public class MainGUI {
         JButton edit = styledButton("Edit", new Color(249, 115, 22));
         JButton delete = styledButton("Delete", SECONDARY);
         JButton analytics = styledButton("Analytics", INFO);
+        JButton savingsGoal = styledButton("Savings Goal", new Color(20, 184, 166));
         JButton importReceipt = styledButton("Import Receipt", new Color(236, 72, 153));
         JButton save = styledButton("Save Data", new Color(14, 165, 233));
         JButton exportPdf = styledButton("Export PDF", new Color(168, 85, 247));
@@ -365,6 +424,7 @@ public class MainGUI {
         buttons.add(edit);
         buttons.add(delete);
         buttons.add(analytics);
+        buttons.add(savingsGoal);
         buttons.add(importReceipt);
         buttons.add(save);
         buttons.add(exportPdf);
@@ -410,6 +470,7 @@ public class MainGUI {
         });
 
         analytics.addActionListener(e -> new AnalyticsDialog(frame, manager).setVisible(true));
+        savingsGoal.addActionListener(e -> setSavingsGoal());
         importReceipt.addActionListener(e -> importReceipt(frame));
 
         save.addActionListener(e -> {
@@ -643,6 +704,7 @@ public class MainGUI {
         updateRecentActivityWidget();
         updateAlertsWidget();
         updateBudgetHealthWidget();
+        updateSavingsGoalWidget();
     }
 
     private void updateRecentActivityWidget() {
@@ -776,6 +838,52 @@ public class MainGUI {
         }
 
         budgetHealthWidget.setText(builder.toString());
+    }
+
+    private void updateSavingsGoalWidget() {
+        double goal = manager.getSavingsGoal();
+        double balance = manager.getBalance();
+
+        if (goal <= 0) {
+            savingsGoalLabel.setText("No goal set yet");
+            savingsGoalMetaLabel.setText("Create a target to track your progress visually on the dashboard.");
+            savingsGoalBar.setValue(0);
+            savingsGoalBar.setString("Set a savings target");
+            return;
+        }
+
+        int progress = (int) Math.min(Math.round(manager.getSavingsGoalProgress() * 100), 100);
+        savingsGoalLabel.setText(df.format(balance) + " / " + df.format(goal));
+        savingsGoalMetaLabel.setText(progress >= 100
+                ? "Goal reached. Your current balance has fully covered this target."
+                : "Remaining to goal: " + df.format(Math.max(goal - balance, 0)));
+        savingsGoalBar.setValue(progress);
+        savingsGoalBar.setString(progress + "% complete");
+    }
+
+    private void setSavingsGoal() {
+        while (true) {
+            String input = showTextInputDialog(mainFrame, "Savings Goal", "Target amount", manager.getSavingsGoal() > 0
+                    ? String.valueOf(manager.getSavingsGoal())
+                    : "");
+            if (input == null) {
+                return;
+            }
+
+            try {
+                double goal = Double.parseDouble(input.trim());
+                if (goal < 0) {
+                    showMessageDialog(mainFrame, "Savings goal cannot be negative.", "Invalid Goal");
+                    continue;
+                }
+                manager.setSavingsGoal(goal);
+                log(goal == 0 ? "Savings goal cleared" : "Savings goal updated: " + df.format(goal));
+                refreshAll();
+                return;
+            } catch (NumberFormatException ex) {
+                showMessageDialog(mainFrame, "Invalid goal amount.", "Input Error");
+            }
+        }
     }
 
     private void editSelectedTransaction(JFrame frame, JTable table) {

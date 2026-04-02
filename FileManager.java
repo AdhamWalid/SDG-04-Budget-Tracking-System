@@ -13,6 +13,8 @@ public class FileManager {
                 writer.println("CATEGORY," + category.getName() + "," + category.getLimit());
             }
 
+            writer.println("GOAL," + manager.getSavingsGoal());
+
             for (Transaction t : manager.getTransactions()) {
 
                 if (t instanceof Expense) {
@@ -55,6 +57,8 @@ public class FileManager {
                     String name = parts[1];
                     double limit = Double.parseDouble(parts[2]);
                     manager.addCategory(name, limit);
+                } else if (parts[0].equals("GOAL") && parts.length >= 2) {
+                    manager.setSavingsGoal(Double.parseDouble(parts[1]));
                 } else if (parts[0].equals("INCOME")) {
                     double amount = Double.parseDouble(parts[1]);
                     String source = parts.length >= 4 ? parts[2] : "General";

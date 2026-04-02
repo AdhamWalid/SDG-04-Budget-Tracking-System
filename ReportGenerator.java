@@ -16,6 +16,14 @@ public class ReportGenerator {
         report.append("Total Expense: ").append(df.format(manager.getTotalExpense())).append("\n");
         report.append("Current Balance: ").append(df.format(manager.getBalance())).append("\n\n");
 
+        report.append("=== SAVINGS GOAL ===\n");
+        if (manager.getSavingsGoal() > 0) {
+            report.append("Goal: ").append(df.format(manager.getSavingsGoal())).append("\n");
+            report.append("Progress: ").append(String.format("%.1f%%", manager.getSavingsGoalProgress() * 100)).append("\n\n");
+        } else {
+            report.append("No savings goal set\n\n");
+        }
+
         report.append("=== ").append(latestMonth).append(" SUMMARY ===\n");
         report.append("Income: ").append(df.format(manager.getTotalIncome(latestMonth))).append("\n");
         report.append("Expense: ").append(df.format(manager.getTotalExpense(latestMonth))).append("\n");

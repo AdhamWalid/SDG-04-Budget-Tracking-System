@@ -156,12 +156,21 @@ public class AnalyticsDialog extends JDialog {
         left.add(createSectionPanel("Category Budget Status", createCategoryPanel(manager)), BorderLayout.CENTER);
         left.add(createSectionPanel("Latest Month Snapshot", createMonthSnapshot(manager, latestMonth)), BorderLayout.SOUTH);
 
+        JPanel right = new JPanel(new BorderLayout(0, 16));
+        right.setOpaque(false);
+        right.add(createSectionPanel("Monthly Trend", createTrendPanel(manager)), BorderLayout.NORTH);
         JPanel reportArea = createReportArea(manager);
-        JPanel right = createSectionPanel("Detailed Report", reportArea);
+        right.add(createSectionPanel("Detailed Report", reportArea), BorderLayout.CENTER);
 
         panel.add(left);
         panel.add(right);
         return panel;
+    }
+
+    private TrendChartPanel createTrendPanel(BudgetManager manager) {
+        TrendChartPanel chartPanel = new TrendChartPanel();
+        chartPanel.setData(manager.getMonthlyIncomeTotals(6), manager.getMonthlyExpenseTotals(6));
+        return chartPanel;
     }
 
     private JScrollPane createCategoryPanel(BudgetManager manager) {

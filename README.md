@@ -23,9 +23,11 @@ This project started as a simple income tracking system and was expanded into a 
 - View total income, total expense, balance, highest category, and latest month summaries
 - Filter transactions by type, category, and month
 - View recent activity, alerts, and budget health widgets on the dashboard
+- Set a savings goal and track progress from the dashboard
 - Open a dedicated analytics window with:
   - overview cards
   - category budget progress bars
+  - monthly trend chart
   - monthly snapshot
   - detailed financial report
 - Import receipt text manually or from supported files

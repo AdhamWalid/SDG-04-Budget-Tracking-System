@@ -5,6 +5,7 @@ public class BudgetManager {
 
     private final ArrayList<Transaction> transactions = new ArrayList<>();
     private final HashMap<String, Category> categories = new HashMap<>();
+    private double savingsGoal;
 
     public void addCategory(String name, double limit) {
         String normalizedName = normalizeCategoryName(name);
@@ -272,6 +273,29 @@ public class BudgetManager {
         return totals;
     }
 
+    public void setSavingsGoal(double savingsGoal) {
+        this.savingsGoal = Math.max(0, savingsGoal);
+    }
+
+    public double getSavingsGoal() {
+        return savingsGoal;
+    }
+
+    public double getSavingsGoalProgress() {
+        if (savingsGoal <= 0) {
+            return 0;
+        }
+        return Math.max(0, Math.min(getBalance() / savingsGoal, 1.0));
+    }
+
+    public Map<YearMonth, Double> getMonthlyIncomeTotals(int monthCount) {
+        return getMonthlyTotals(monthCount, true);
+    }
+
+    public Map<YearMonth, Double> getMonthlyExpenseTotals(int monthCount) {
+        return getMonthlyTotals(monthCount, false);
+    }
+
     private void rebuildCategorySpending() {
         for (Category category : categories.values()) {
             category.setSpent(0);
@@ -296,5 +320,30 @@ public class BudgetManager {
 
     private boolean matchesMonth(Transaction transaction, YearMonth month) {
         return month == null || YearMonth.from(transaction.getDate()).equals(month);
+    }
+
+    private Map<YearMonth, Double> getMonthlyTotals(int monthCount, boolean incomeMode) {
+        LinkedHashMap<YearMonth, Double> totals = new LinkedHashMap<>();
+        YearMonth latest = getLatestTransactionMonth();
+        int safeCount = Math.max(1, monthCount);
+
+        for (int i = safeCount - 1; i >= 0; i--) {
+            YearMonth month = latest.minusMonths(i);
+            totals.put(month, 0.0);
+        }
+
+        for (Transaction transaction : transactions) {
+            boolean matchesType = incomeMode ? transaction instanceof Income : transaction instanceof Expense;
+            if (!matchesType) {
+                continue;
+            }
+
+            YearMonth month = YearMonth.from(transaction.getDate());
+            if (totals.containsKey(month)) {
+                totals.put(month, totals.get(month) + transaction.getAmount());
+            }
+        }
+
+        return totals;
     }
 }
